@@ -35,10 +35,73 @@ textarea {
 body {
   margin: 0;
 }
+
+/* Variables */ 
+
+:root {
+  /* Primary */ 
+  --moderate-blue: hsl(238, 40%, 52%);
+  --soft-red: hsl(358, 79%, 66%);
+  --light-grayish-blue: hsl(239, 57%, 85%);
+  --pale-red: hsl(357, 100%, 86%);
+
+  /* Neutral */
+  --dark-blue: hsl(212, 24%, 26%);
+  --grayish-blue: hsl(211, 10%, 45%);
+  --light-gray: hsl(223, 19%, 93%);
+  --very-light-gray: hsl(228, 33%, 97%);
+  --white: hsl(0, 0%, 100%);
+}
+
 /* Base */ 
 
 * {
   font-family: "Rubik", sans-serif;
   font-optical-sizing: auto;
   font-style: normal;
+}
+
+/* Body */ 
+
+body {
+  font-size: 16px;
+  background: var(--very-light-gray);
+}
+
+/* Comment section */ 
+
+.comment-thread {
+  margin: 2em auto;
+  width: max-content;
+}
+
+.comment {
+  display: grid;
+  grid-template-areas: 
+    "commentInfo commentInfo"
+    "commentDescription commentDescription"
+    "scoreCount replyBtn";
+  background: var(--white);
+  max-width: 320px;
+  margin-bottom: 1em;
+}
+
+.comment-info {
+  grid-area: commentInfo;
+  display: flex;
+  align-items: center;
+}
+
+.comment-description {
+  grid-area: commentDescription;
+}
+
+.comment-score {
+  grid-area: scoreCount;
+  display: flex;
+  align-items: center;
+}
+
+.comment-reply-btn {
+  grid-area: replyBtn;
 }

@@ -34,7 +34,7 @@ function displayComments() {
     if (comment.replies.length > 0) {
       comment.replies.forEach(reply => {
         commentsHtml += `
-          <article class="comment">
+          <article class="comment nested-comment">
             <section class="comment-info">
               <img class="comment-avatar" src="${reply.user.image.png}">
               <p class="comment-username">${reply.user.username}</p>
