@@ -22,11 +22,18 @@ function displayComments() {
         </section>
         <p class="comment-description">${comment.content}</p>
         <section class="comment-score">
-          <button class="+">+</button>
+          <button class="plus">
+            <img class="plus-icon" src="./images/icon-plus.svg">              
+          </button>
           <p class="comment-score-count">${comment.score}</p>
-          <button class="-">-</button>
+          <button class="minus">
+            <img class="minus-icon" src="./images/icon-minus.svg">
+          </button>
         </section>
-        <button class="comment-reply-btn">Reply</button>
+        <button class="comment-reply-btn">
+          <img class="reply-icon" src="./images/icon-reply.svg">
+          Reply
+        </button>
       </article>    
     `
 
@@ -42,11 +49,18 @@ function displayComments() {
             </section>
             <p class="comment-description">${reply.content}</p>
             <section class="comment-score">
-              <button class="+">+</button>
+              <button class="plus">
+                <img class="plus-icon" src="./images/icon-plus.svg">              
+              </button>
               <p class="comment-score-count">${reply.score}</p>
-              <button class="-">-</button>
+              <button class="minus">
+                <img class="minus-icon" src="./images/icon-minus.svg">
+              </button>
             </section>
-            <button class="comment-reply-btn">Reply</button>
+            <button class="comment-reply-btn">
+              <img class="reply-icon" src="./images/icon-reply.svg">
+              Reply
+            </button>
           </article>    
         `
       })
