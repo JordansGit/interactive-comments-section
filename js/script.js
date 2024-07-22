@@ -8,8 +8,36 @@ const {currentUser, comments: commentData} = data
 console.log(currentUser);
 console.log(commentData);
 
+function checkUser(comment) {
+  return currentUser.username === comment.user.username
+}
+
 function displayComments() {
   let commentsHtml = ``
+
+  let replyButtonHtml = `
+    <button class="comment-reply-btn">
+      <img class="reply-icon" src="./images/icon-reply.svg">
+      Reply
+    </button>
+  `
+
+  let editAndDeleteButtonsHtml = `
+    <div class="comment-btns">
+      <button class="comment-delete-btn">
+        <img class="reply-icon" src="./images/icon-delete.svg">
+        Delete
+      </button>
+      <button class="comment-edit-btn">
+        <img class="reply-icon" src="./images/icon-edit.svg">
+        Edit
+      </button>
+    </div> 
+  `
+
+  let highlightUserDiv = `
+    <p class="comment-highlight-user">you</p> <!-- need to add conditional statement. if user == true && ... --> 
+  `
 
   commentData.forEach(comment => {
     // individual comments
@@ -30,24 +58,29 @@ function displayComments() {
             <img class="minus-icon" src="./images/icon-minus.svg">
           </button>
         </section>
-        <button class="comment-reply-btn">
-          <img class="reply-icon" src="./images/icon-reply.svg">
-          Reply
-        </button>
+        ${replyButtonHtml}
       </article>    
     `
 
     // each reply to a comment. 
     if (comment.replies.length > 0) {
       comment.replies.forEach(reply => {
+
+        const displayCommentBtns = checkUser(reply) ? editAndDeleteButtonsHtml : replyButtonHtml
+        const displayHighlightUserDiv = checkUser(reply) ? highlightUserDiv : ''
+
         commentsHtml += `
           <article class="comment nested-comment">
             <section class="comment-info">
               <img class="comment-avatar" src="${reply.user.image.png}">
               <p class="comment-username">${reply.user.username}</p>
+              ${displayHighlightUserDiv}
               <p class="comment-date">${reply.createdAt}</p>  
             </section>
-            <p class="comment-description">${reply.content}</p>
+            <p class="comment-description">
+              <span class="reply-handle">@maxblagun</span> <!-- change this!!!! --> 
+              ${reply.content}
+            </p>
             <section class="comment-score">
               <button class="plus">
                 <img class="plus-icon" src="./images/icon-plus.svg">              
@@ -57,11 +90,8 @@ function displayComments() {
                 <img class="minus-icon" src="./images/icon-minus.svg">
               </button>
             </section>
-            <button class="comment-reply-btn">
-              <img class="reply-icon" src="./images/icon-reply.svg">
-              Reply
-            </button>
-          </article>    
+            ${displayCommentBtns}
+            </article>    
         `
       })
     }
@@ -86,3 +116,17 @@ function render() {
 }
 
 render()
+
+
+/* To do 
+  js: increment, decrement 
+  js: delete btn 
+    js: delete modal 
+  js: edit btn
+  js: add comment btn 
+
+  js: reply btn 
+
+  css: desktop design / rwd 
+  css: the vertical line for replies + make reply box smaller. 
+*/ 

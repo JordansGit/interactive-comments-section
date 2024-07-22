@@ -71,26 +71,32 @@ p {
 
 button {
   padding: 0.5em;
+  font-size: 1rem;
 }
+
 button:hover {
   cursor: pointer;
 }
 
 /* Typography */ 
-.comment-username {
+.comment-username, .reply-handle {
   font-weight: 700;
 }
 
-.comment-score-count, .comment-reply-btn {
+.comment-score-count, .comment-reply-btn, .comment-edit-btn, .comment-delete-btn {
   font-weight: 500;
 }
 
-.comment-reply-btn {
-  font-size: 1rem;
+.comment-username {
+  color: var(--dark-blue);
 }
 
-.comment-score, .comment-reply-btn {
+.comment-score, .comment-reply-btn, .comment-edit-btn, .reply-handle {
   color: var(--moderate-blue);
+}
+
+.comment-delete-btn {
+  color: var(--soft-red);
 }
 
 .comment-date, .comment-description {
@@ -110,7 +116,7 @@ body {
 
 /* Comment section */ 
 
-.comment, .comment-score, .comment-reply-btn {
+.comment, .comment-score, .user-comment-input, .user-comment-submit {
   border-radius: 8px;
 }
 
@@ -135,7 +141,7 @@ body {
   grid-area: commentInfo;
   display: flex;
   align-items: center;
-  gap: 1.2em;
+  gap: 1em;
 }
 
 .comment-avatar {
@@ -178,17 +184,65 @@ body {
   grid-template-areas: 
   "textarea textarea"
   "userAvatar sendBtn";
+  gap: 1em;
 }
 
 .user-comment-input {
   grid-area: textarea;
+  padding: 0.75em 1.5em;
+  font-size: 1rem;
+  border-color: var(--light-gray);
+  color: var(--dark-blue)
+}
+
+.user-comment-input::placeholder {
+  color: var(--grayish-blue)
+}
+
+.user-comment-input:focus {
+  outline: none;
+  border: 1px solid var(--grayish-blue);
 }
 
 .user-avatar {
   width: 32px;
   grid-area: userAvatar;
+  align-self: center;
 }
 
 .user-comment-submit {
   grid-area: sendBtn;
+  background: var(--moderate-blue);
+  color: var(--white);
+  width: max-content;
+  padding: 1em 2em;
+  justify-self: end;
+}
+
+.comment-highlight-user {
+  background: var(--moderate-blue);
+  color: var(--white);
+  width: max-content;
+  font-size: 0.8rem;
+  padding: 0.08em 0.4em;
+  margin-left: -0.5em;
+  margin-bottom: 0.15em;
+  border-radius: 2px;
+}
+
+.comment-btns {
+  display: flex;
+  justify-self: end;
+}
+
+.comment-edit-btn, .comment-delete-btn {
+  background: none;
+  width: max-content;
+}
+
+.comment-edit-btn {
+
+}
+.comment-delete-btn {
+
 }
