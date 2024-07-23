@@ -246,3 +246,20 @@ body {
 .comment-delete-btn {
 
 }
+
+.plus-icon, .minus-icon {
+  pointer-events: none;
+}
+
+.minus-icon {
+  vertical-align: middle;
+}
+
+.plus, .minus {
+  color: #C5C6EF;
+  background: none;
+}
+
+.plus:hover, .minus:hover {
+  color: var(--moderate-blue);
+}
