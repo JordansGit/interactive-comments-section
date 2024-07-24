@@ -263,3 +263,7 @@ body {
 .plus:hover, .minus:hover {
   color: var(--moderate-blue);
 }
+
+.active {
+  color: var(--moderate-blue);
+}

@@ -107,6 +107,9 @@ function displayComments() {
   `
 
   commentData.forEach(comment => {
+    const incrementActive = comment.isLiked ? 'active' : ''
+    const decrementActive = comment.isDisliked ? 'active' : ''
+  
     // individual comments
     commentsHtml += `
       <article class="comment">
@@ -117,13 +120,13 @@ function displayComments() {
         </section>
         <p class="comment-description">${comment.content}</p>
         <section class="comment-score">
-          <button class="plus" data-plus=${comment.id}>
+          <button class="plus ${incrementActive}" data-plus=${comment.id}>
             <svg class="plus-icon" width="11" height="11" xmlns="http://www.w3.org/2000/svg">
               <path d="M6.33 10.896c.137 0 .255-.05.354-.149.1-.1.149-.217.149-.354V7.004h3.315c.136 0 .254-.05.354-.149.099-.1.148-.217.148-.354V5.272a.483.483 0 0 0-.148-.354.483.483 0 0 0-.354-.149H6.833V1.4a.483.483 0 0 0-.149-.354.483.483 0 0 0-.354-.149H4.915a.483.483 0 0 0-.354.149c-.1.1-.149.217-.149.354v3.37H1.08a.483.483 0 0 0-.354.15c-.1.099-.149.217-.149.353v1.23c0 .136.05.254.149.353.1.1.217.149.354.149h3.333v3.39c0 .136.05.254.15.353.098.1.216.149.353.149H6.33Z" fill="currentColor"/>
             </svg>              
           </button>
           <p class="comment-score-count">${comment.score}</p>
-          <button class="minus" data-minus=${comment.id}>
+          <button class="minus ${decrementActive}" data-minus=${comment.id}>
             <svg class="minus-icon" width="11" height="3" xmlns="http://www.w3.org/2000/svg">
               <path d="M9.256 2.66c.204 0 .38-.056.53-.167.148-.11.222-.243.222-.396V.722c0-.152-.074-.284-.223-.395a.859.859 0 0 0-.53-.167H.76a.859.859 0 0 0-.53.167C.083.437.009.57.009.722v1.375c0 .153.074.285.223.396a.859.859 0 0 0 .53.167h8.495Z" fill="currentColor"/>
             </svg>
@@ -140,6 +143,9 @@ function displayComments() {
         const displayCommentBtns = checkUser(reply) ? editAndDeleteButtonsHtml : replyButtonHtml
         const displayHighlightUserDiv = checkUser(reply) ? highlightUserDiv : ''
 
+        const incrementActiveReply = reply.isLiked ? 'active' : ''
+        const decrementActiveReply = reply.isDisliked ? 'active' : ''    
+
         commentsHtml += `
           <article class="comment nested-comment">
             <section class="comment-info">
@@ -153,13 +159,13 @@ function displayComments() {
               ${reply.content}
             </p>
             <section class="comment-score">
-              <button class="plus" data-plus=${reply.id}>
+              <button class="plus ${incrementActiveReply}" data-plus=${reply.id}>
                 <svg class="plus-icon" width="11" height="11" xmlns="http://www.w3.org/2000/svg">
                   <path d="M6.33 10.896c.137 0 .255-.05.354-.149.1-.1.149-.217.149-.354V7.004h3.315c.136 0 .254-.05.354-.149.099-.1.148-.217.148-.354V5.272a.483.483 0 0 0-.148-.354.483.483 0 0 0-.354-.149H6.833V1.4a.483.483 0 0 0-.149-.354.483.483 0 0 0-.354-.149H4.915a.483.483 0 0 0-.354.149c-.1.1-.149.217-.149.354v3.37H1.08a.483.483 0 0 0-.354.15c-.1.099-.149.217-.149.353v1.23c0 .136.05.254.149.353.1.1.217.149.354.149h3.333v3.39c0 .136.05.254.15.353.098.1.216.149.353.149H6.33Z" fill="currentColor"/>
                 </svg>              
               </button>
               <p class="comment-score-count">${reply.score}</p>
-              <button class="minus" data-minus=${reply.id}>
+              <button class="minus ${decrementActiveReply}" data-minus=${reply.id}>
                 <svg class="minus-icon" width="11" height="3" xmlns="http://www.w3.org/2000/svg">
                   <path d="M9.256 2.66c.204 0 .38-.056.53-.167.148-.11.222-.243.222-.396V.722c0-.152-.074-.284-.223-.395a.859.859 0 0 0-.53-.167H.76a.859.859 0 0 0-.53.167C.083.437.009.57.009.722v1.375c0 .153.074.285.223.396a.859.859 0 0 0 .53.167h8.495Z" fill="currentColor"/>
                 </svg>
