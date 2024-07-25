@@ -7,12 +7,17 @@ import data from '../data.json' with { type: 'json' };
 const {currentUser, comments: commentData} = data
 console.log(currentUser);
 console.log(commentData);
+let commentsAndRepliesCount = 0
 
 document.addEventListener('click', function(e) {
   if (e.target.dataset.plus) {
     handleIncrement(e.target.dataset.plus)
   } else if (e.target.dataset.minus) {
     handleDecrement(e.target.dataset.minus)
+  } else if (e.target.classList.contains('comment-delete-btn')) {
+    handleDeleteCommentBtn(e)
+  } else if (e.target.classList.contains('user-comment-submit')) {
+    handleSubmitCommentBtn(e)
   }
 })
 
@@ -42,8 +47,6 @@ function handleIncrement(id) {
   }
   // extra logic here so that if i've already clicked increment and I now click decrement, it now decrements by 2. so -1 to go back to og value, and -1 to go back to new minus value. 
   render()
-
-
 }
 
 function handleDecrement(id) {
@@ -74,6 +77,46 @@ function handleDecrement(id) {
 
   render()
 }
+
+function handleDeleteCommentBtn(e) {
+  console.log(e.target.parentElement.parentElement)
+  e.target.parentElement.parentElement.remove()
+  /* 
+    need to do pop up modal
+    need to actually delete it from local storage or data.json file. 
+  */ 
+}
+
+function handleSubmitCommentBtn(e) {
+  e.preventDefault()
+  const submitCommentInput = document.getElementById('user-comment-input')
+  let tempId = commentsAndRepliesCount + 1
+  commentsAndRepliesCount++
+
+  if (submitCommentInput.value.length > 0) {
+    commentData.push(
+      {
+        "id": commentsAndRepliesCount,
+        "content": submitCommentInput.value,
+        "createdAt": "just now",
+        "score": 0,
+        "isLiked": false,
+        "isDisliked": false, 
+        "user": {
+          "image": { 
+            "png": "./images/avatars/image-juliusomo.png",
+            "webp": "./images/avatars/image-juliusomo.webp"
+          },
+          "username": "juliusomo"
+        },
+        "replies": []
+      }
+    )
+    console.log(commentData[commentData.length-1])
+    render()
+  }
+}
+
 
 function checkUser(comment) {
   return currentUser.username === comment.user.username
@@ -106,16 +149,24 @@ function displayComments() {
     <p class="comment-highlight-user">you</p> <!-- need to add conditional statement. if user == true && ... --> 
   `
 
+  commentsAndRepliesCount = 0
+
   commentData.forEach(comment => {
+    const displayCommentBtns = checkUser(comment) ? editAndDeleteButtonsHtml : replyButtonHtml
+    const displayHighlightUserDiv = checkUser(comment) ? highlightUserDiv : ''
+
     const incrementActive = comment.isLiked ? 'active' : ''
     const decrementActive = comment.isDisliked ? 'active' : ''
   
+    commentsAndRepliesCount++ 
+
     // individual comments
     commentsHtml += `
       <article class="comment">
         <section class="comment-info">
           <img class="comment-avatar" src="${comment.user.image.png}">
           <p class="comment-username">${comment.user.username}</p>
+          ${displayHighlightUserDiv}
           <p class="comment-date">${comment.createdAt}</p>  
         </section>
         <p class="comment-description">${comment.content}</p>
@@ -132,7 +183,7 @@ function displayComments() {
             </svg>
           </button>
         </section>
-        ${replyButtonHtml}
+        ${displayCommentBtns}
       </article>    
     `
 
@@ -140,22 +191,24 @@ function displayComments() {
     if (comment.replies.length > 0) {
       comment.replies.forEach(reply => {
 
-        const displayCommentBtns = checkUser(reply) ? editAndDeleteButtonsHtml : replyButtonHtml
-        const displayHighlightUserDiv = checkUser(reply) ? highlightUserDiv : ''
+        const displayCommentBtnsReply = checkUser(reply) ? editAndDeleteButtonsHtml : replyButtonHtml
+        const displayHighlightUserDivReply = checkUser(reply) ? highlightUserDiv : ''
 
         const incrementActiveReply = reply.isLiked ? 'active' : ''
-        const decrementActiveReply = reply.isDisliked ? 'active' : ''    
+        const decrementActiveReply = reply.isDisliked ? 'active' : '' 
+
+        commentsAndRepliesCount++
 
         commentsHtml += `
           <article class="comment nested-comment">
             <section class="comment-info">
               <img class="comment-avatar" src="${reply.user.image.png}">
               <p class="comment-username">${reply.user.username}</p>
-              ${displayHighlightUserDiv}
+              ${displayHighlightUserDivReply}
               <p class="comment-date">${reply.createdAt}</p>  
             </section>
             <p class="comment-description">
-              <span class="reply-handle">@maxblagun</span> <!-- change this!!!! --> 
+              <span class="reply-handle">@${reply.replyingTo}</span> <!-- change this!!!! --> 
               ${reply.content}
             </p>
             <section class="comment-score">
@@ -171,7 +224,7 @@ function displayComments() {
                 </svg>
               </button>
             </section>
-            ${displayCommentBtns}
+            ${displayCommentBtnsReply}
             </article>    
         `
       })
@@ -182,7 +235,7 @@ function displayComments() {
   commentsHtml += `
   <form class="comment add-comment">
     <img class="user-avatar" src="${currentUser.image.png}">
-    <textarea class="user-comment-input" rows="4" cols="50" placeholder="Add a comment..."></textarea>
+    <textarea class="user-comment-input" id="user-comment-input" rows="4" cols="50" placeholder="Add a comment..."></textarea>
     <button class="user-comment-submit">SEND</button>
   </form>
   `
@@ -198,8 +251,8 @@ function render() {
 
 render()
 
+
 /* To do 
-  js: increment, decrement 
   js: delete btn 
     js: delete modal 
   js: edit btn
