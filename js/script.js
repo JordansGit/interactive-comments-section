@@ -4,10 +4,14 @@
 
 import data from '../data.json' with { type: 'json' };
 
-const {currentUser, comments: commentData} = data
+let {currentUser, comments: commentData} = data
 console.log(currentUser);
 console.log(commentData);
 let commentsAndRepliesCount = 0
+
+const modalCancelBtn = document.getElementById('modal-cancel-btn')
+const modalDeleteBtn = document.getElementById('modal-delete-btn')
+const deleteModal = document.getElementById('delete-modal')
 
 document.addEventListener('click', function(e) {
   if (e.target.dataset.plus) {
@@ -15,11 +19,13 @@ document.addEventListener('click', function(e) {
   } else if (e.target.dataset.minus) {
     handleDecrement(e.target.dataset.minus)
   } else if (e.target.classList.contains('comment-delete-btn')) {
-    handleDeleteCommentBtn(e)
+    openDeleteModal(e)
   } else if (e.target.classList.contains('user-comment-submit')) {
     handleSubmitCommentBtn(e)
-  }
+  } 
 })
+
+
 
 function handleIncrement(id) {
   let targetCommentObj = {}
@@ -31,6 +37,7 @@ function handleIncrement(id) {
       targetCommentObj = comment.replies.filter(reply => reply.id === commentId)[0]
     })
   }
+  console.log(targetCommentObj)
 
   if (targetCommentObj.isDisliked) {
     targetCommentObj.score += 2
@@ -78,13 +85,58 @@ function handleDecrement(id) {
   render()
 }
 
-function handleDeleteCommentBtn(e) {
-  console.log(e.target.parentElement.parentElement)
-  e.target.parentElement.parentElement.remove()
-  /* 
-    need to do pop up modal
-    need to actually delete it from local storage or data.json file. 
-  */ 
+function openDeleteModal(e) {
+  // get targetTweetEl and targetTweetObj, save them to variables
+  const targetTweetEl = e.target.parentElement.parentElement
+
+  let targetCommentObj = {}
+  let commentId = Number(targetTweetEl.dataset.comment)
+
+  targetCommentObj = commentData.filter(comment => comment.id === commentId)[0]
+  if (targetCommentObj === undefined) {
+    commentData.forEach(comment => {
+      targetCommentObj = comment.replies.filter(reply => reply.id === commentId)[0]
+    })
+  }
+
+  // open modal
+  deleteModal.classList.add('show-modal')
+  // click event listener, if cancel clicked run close modal func, if del click, run del btn func
+  document.getElementById('modal-content').addEventListener('click', function(e) {
+    if (e.target === modalCancelBtn) {
+      handleCloseModal() 
+    } else if (e.target === modalDeleteBtn) {
+      handleDeleteComment(targetCommentObj)
+    }
+  })
+}
+
+function handleCloseModal() {
+  deleteModal.classList.remove('show-modal')
+}
+
+function handleDeleteComment(targetCommentObj) {
+  console.log(targetCommentObj)
+  let arr = [...commentData]
+  // commentData.pop() // this removes the last comment and all it's replies. we only want to remove the specific comment or reply. 
+
+  let newCommentData = []
+  commentData.forEach(comment => {
+    if (comment.id !== targetCommentObj.id) {
+      if (comment.replies.length > 0) {
+        comment.replies = comment.replies.filter(reply => {
+          return reply.id !== targetCommentObj.id
+        })
+      }
+      newCommentData.push(comment)
+    }
+  })
+  console.log(newCommentData)
+  commentData = newCommentData
+
+  // targetTweetObj.remove() // this removes the element from the dom, we want to remove the obj from commentData then call render(). 
+  deleteModal.classList.remove('show-modal')
+  render()
 }
 
 function handleSubmitCommentBtn(e) {
@@ -113,6 +165,7 @@ function handleSubmitCommentBtn(e) {
       }
     )
     console.log(commentData[commentData.length-1])
+    console.log(commentData)
     render()
   }
 }
@@ -135,11 +188,11 @@ function displayComments() {
   let editAndDeleteButtonsHtml = `
     <div class="comment-btns">
       <button class="comment-delete-btn">
-        <img class="reply-icon" src="./images/icon-delete.svg">
+        <img class="delete-icon" src="./images/icon-delete.svg">
         Delete
       </button>
       <button class="comment-edit-btn">
-        <img class="reply-icon" src="./images/icon-edit.svg">
+        <img class="edit-icon" src="./images/icon-edit.svg">
         Edit
       </button>
     </div> 
@@ -162,7 +215,7 @@ function displayComments() {
 
     // individual comments
     commentsHtml += `
-      <article class="comment">
+      <article class="comment" data-comment=${comment.id}>
         <section class="comment-info">
           <img class="comment-avatar" src="${comment.user.image.png}">
           <p class="comment-username">${comment.user.username}</p>
@@ -200,7 +253,7 @@ function displayComments() {
         commentsAndRepliesCount++
 
         commentsHtml += `
-          <article class="comment nested-comment">
+          <article class="comment nested-comment" data-comment=${reply.id}>
             <section class="comment-info">
               <img class="comment-avatar" src="${reply.user.image.png}">
               <p class="comment-username">${reply.user.username}</p>
@@ -253,10 +306,7 @@ render()
 
 
 /* To do 
-  js: delete btn 
-    js: delete modal 
   js: edit btn
-  js: add comment btn 
 
   js: reply btn 
 
@@ -270,4 +320,13 @@ targetTweetObj()
  also, i'm thinking maybe the above code can be made into a seperate function called getTargetCommentObj(). 
   I think the code might be jank and it might break/run super slower if you had a proper full scale app w/ millions of comments. but for now it gets the job done and I cba to figure the correct way to do it at this point in time because I have other things to prioritise in my learnings. 
 
+Decrement
+  need to fix bug where decrementing a score of 0 returns -1. need it to return 0 if already at 0. 
+
+handleDeleteComment()
+  probably not the cleanest code, but it's working. took me multiple sessions lasting a few hours each to figure it out. 
+  i had to change commentData from a const to a let. I feel like this is bad practice just from tuts i've watched but it was the only way (that I currently know of) to get it to work. and it makes sense if I think about it, ofc I need to change the data when deleting an item from it. 
+
+Delete Btn
+  need to actually delete it from local storage or data.json file. 
 */ 
