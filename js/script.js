@@ -243,7 +243,7 @@ function handleSubmitReply(e) {
 
   const replyingTo = commentData[commentIndex].user.username
 
-  if (submitReplyInput.value.length > 0) {
+  if (submitReplyInput.value.length > replyUsername.length + 3) {
     commentData[commentIndex].replies.push(
       {
         "id": commentsAndRepliesCount,
@@ -262,10 +262,10 @@ function handleSubmitReply(e) {
         },
       }
     )
+    console.log(commentData)
+    render()  
   }
 
-  console.log(commentData)
-  render()
 
   /* we want to add the reply to commentData. 
       if it comment is a comment obj, get the reply obj
