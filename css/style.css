@@ -116,13 +116,30 @@ body {
 
 /* Comment section */ 
 
-.comment, .comment-score, .user-comment-input, .user-comment-submit {
+.comment, .comment-score, .user-comment-input, .submit-btn {
   border-radius: 8px;
 }
 
 .comment-thread {
-  margin: 2em auto;
-  width: max-content;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  /* width: 100vw; */
+  margin-top: 2em;
+  /* width: max-content; */
+  gap: 1em;
+}
+
+.comment-form {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  /* width: 100vw; */
+  margin: 2em 0;
+  /* width: max-content; */
+  gap: 1em;
 }
 
 .comment {
@@ -132,9 +149,27 @@ body {
     "commentDescription commentDescription"
     "scoreCount replyBtn";
   background: var(--white);
-  max-width: 320px;
-  margin-bottom: 1em;
+  width: 320px;
+  /* margin-bottom: 1em; */
   padding: 1em;
+}
+
+.nested-comment {
+  width: calc(320px - 1em);
+  margin-left: 1em;
+  /* border-left: 1px solid black; */
+  position: relative;
+}
+
+.nested-comment::before {
+  content: '';
+  position: absolute;
+  background: var(--light-gray);
+  left: -1em;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  height: 100%;
 }
 
 .comment-info {
@@ -210,7 +245,7 @@ body {
   align-self: center;
 }
 
-.user-comment-submit {
+.submit-btn {
   grid-area: sendBtn;
   background: var(--moderate-blue);
   color: var(--white);
@@ -247,6 +282,8 @@ body {
 
 }
 
+/* Plus and Minus Icons */ 
+
 .plus-icon, .minus-icon {
   pointer-events: none;
 }
@@ -267,6 +304,8 @@ body {
 .active {
   color: var(--moderate-blue);
 }
+
+/* Modal */ 
 
 .delete-modal {
   position: fixed; /* Stay in place */
@@ -326,4 +365,8 @@ body {
 }
 #modal-delete-btn {
   background: var(--soft-red);
+}
+
+.hide {
+  display: none;
 }

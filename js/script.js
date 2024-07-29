@@ -2,31 +2,38 @@
 //     .then((response) => response.json())
 //     .then((json) => console.log(json));
 
+// Import Data + Global Variables 
 import data from '../data.json' with { type: 'json' };
 
 let {currentUser, comments: commentData} = data
 console.log(currentUser);
 console.log(commentData);
-let commentsAndRepliesCount = 0
 
 const modalCancelBtn = document.getElementById('modal-cancel-btn')
 const modalDeleteBtn = document.getElementById('modal-delete-btn')
 const deleteModal = document.getElementById('delete-modal')
 
+let commentsAndRepliesCount = 0
+
+// Event Listeners 
 document.addEventListener('click', function(e) {
+  // console.log(e.target.id === 'user-comment-submit')
   if (e.target.dataset.plus) {
     handleIncrement(e.target.dataset.plus)
   } else if (e.target.dataset.minus) {
     handleDecrement(e.target.dataset.minus)
   } else if (e.target.classList.contains('comment-delete-btn')) {
     openDeleteModal(e)
-  } else if (e.target.classList.contains('user-comment-submit')) {
+  } else if (e.target.id === 'user-comment-submit') {
     handleSubmitCommentBtn(e)
-  } 
+  } else if (e.target.classList.contains('comment-reply-btn')) {
+    handleOpenReplyEl(e.target)
+  } else if (e.target.id === 'user-reply-submit') {
+    handleSubmitReply(e)
+  }
 })
 
-
-
+// Functions 
 function handleIncrement(id) {
   let targetCommentObj = {}
   let commentId = Number(id)
@@ -37,7 +44,6 @@ function handleIncrement(id) {
       targetCommentObj = comment.replies.filter(reply => reply.id === commentId)[0]
     })
   }
-  console.log(targetCommentObj)
 
   if (targetCommentObj.isDisliked) {
     targetCommentObj.score += 2
@@ -68,13 +74,19 @@ function handleDecrement(id) {
   }
 
   if (targetCommentObj.isLiked) {
-    targetCommentObj.score -= 2
-    targetCommentObj.isLiked = false
-    targetCommentObj.isDisliked = true
+    if (targetCommentObj.score > 1) {
+      targetCommentObj.score -= 2
+      targetCommentObj.isLiked = false
+      targetCommentObj.isDisliked = true  
+    } else {
+      targetCommentObj.score = 0
+    }
   } else if (!targetCommentObj.isDisliked) {
-    targetCommentObj.score--
-    targetCommentObj.isLiked = false
-    targetCommentObj.isDisliked = true
+    if (targetCommentObj.score > 0) {
+      targetCommentObj.score--
+      targetCommentObj.isLiked = false
+      targetCommentObj.isDisliked = true  
+    }
   } else {
     targetCommentObj.score++
     targetCommentObj.isLiked = false
@@ -95,7 +107,13 @@ function openDeleteModal(e) {
   targetCommentObj = commentData.filter(comment => comment.id === commentId)[0]
   if (targetCommentObj === undefined) {
     commentData.forEach(comment => {
-      targetCommentObj = comment.replies.filter(reply => reply.id === commentId)[0]
+      // targetCommentObj = comment.replies.filter(reply => reply.id === commentId)
+      // not sure why it works with forEach() but doesn't work with filter()
+      comment.replies.forEach(reply => {
+        if (reply.id === commentId) {
+          targetCommentObj = reply
+        }
+      })
     })
   }
 
@@ -116,7 +134,7 @@ function handleCloseModal() {
 }
 
 function handleDeleteComment(targetCommentObj) {
-  console.log(targetCommentObj)
+  // console.log(targetCommentObj)
   let arr = [...commentData]
   // commentData.pop() // this removes the last comment and all it's replies. we only want to remove the specific comment or reply. 
 
@@ -142,7 +160,7 @@ function handleDeleteComment(targetCommentObj) {
 function handleSubmitCommentBtn(e) {
   e.preventDefault()
   const submitCommentInput = document.getElementById('user-comment-input')
-  let tempId = commentsAndRepliesCount + 1
+  // let tempId = commentsAndRepliesCount + 1
   commentsAndRepliesCount++
 
   if (submitCommentInput.value.length > 0) {
@@ -169,6 +187,106 @@ function handleSubmitCommentBtn(e) {
     render()
   }
 }
+
+let commentIndex = 0
+let replyUsername = ''
+
+function handleOpenReplyEl(replyBtn) {
+  const targetTweetEl = replyBtn.parentElement
+
+  console.log(commentData)
+  console.log(targetTweetEl)
+  // get target comment object 
+  let targetCommentObj = {}
+  let commentId = Number(targetTweetEl.dataset.comment)
+  targetCommentObj = commentData.filter(comment => comment.id === commentId)[0]
+
+  // get comment index if target comment is a parent comment (not a reply)
+  if (commentData.indexOf(targetCommentObj) > -1) {
+    commentIndex = commentData.indexOf(targetCommentObj)
+  }
+  if (targetCommentObj === undefined) {
+    commentData.forEach(comment => {
+      // get target reply obj. 
+      let i = 0
+      // targetCommentObj = comment.replies.filter(reply => reply.id === commentId)[0]
+      // the filter method isn't working, something about it returns [object Object] instead of the actual object because it's workign w/ json data. idk. 
+      comment.replies.forEach(reply => {
+        if (reply.id === commentId) {
+          targetCommentObj = reply
+        }
+      })
+      // get parent object index for target reply obj. 
+      comment.replies.forEach(reply => {
+        if (reply.id === commentId) {
+          commentIndex = commentData.indexOf(comment)
+        }
+      })
+    })
+  }
+  
+  // const replyUsername = targetCommentObj.user.username
+  replyUsername = targetCommentObj.user.username
+  const replyEl = targetTweetEl.nextElementSibling
+  const ReplyTextArea = replyEl.querySelector('.user-comment-input')
+
+  ReplyTextArea.value = `@${replyUsername}, `
+  replyEl.classList.toggle('hide')
+}
+
+function handleSubmitReply(e) {
+  e.preventDefault()
+  
+  const replyInputForm = e.target.parentElement
+  const submitReplyInput = replyInputForm.querySelector('.user-reply-input')
+  commentsAndRepliesCount++
+
+  const replyingTo = commentData[commentIndex].user.username
+
+  if (submitReplyInput.value.length > 0) {
+    commentData[commentIndex].replies.push(
+      {
+        "id": commentsAndRepliesCount,
+        "content": submitReplyInput.value.substr(replyUsername.length + 2),
+        "createdAt": "just now",
+        "score": 0,
+        "isLiked": false,
+        "isDisliked": false, 
+        "replyingTo": replyUsername,
+        "user": {
+          "image": { 
+            "png": "./images/avatars/image-juliusomo.png",
+            "webp": "./images/avatars/image-juliusomo.webp"
+          },
+          "username": "juliusomo"
+        },
+      }
+    )
+  }
+
+  console.log(commentData)
+  render()
+
+  /* we want to add the reply to commentData. 
+      if it comment is a comment obj, get the reply obj
+      if the comment is a reply obj, get the comment obj (the parent of reply obj)
+      push reply to comment.replies or reply.replies. 
+      render()
+  */ 
+
+  /* 
+    the above works, we just need to change the commentData.push to push it to a comment obj or reply obj. 
+    
+  */ 
+}
+
+// reply function 
+/*
+  when reply btn clicked,       ******* done 
+    open reply div              ***** done 
+  when submitReply btn clicked
+    add reply to commentData 
+*/ 
 
 
 function checkUser(comment) {
@@ -202,6 +320,14 @@ function displayComments() {
     <p class="comment-highlight-user">you</p> <!-- need to add conditional statement. if user == true && ... --> 
   `
 
+  let replySectionHtml = `
+    <form class="comment add-comment hide" id="add-reply">
+      <img class="user-avatar" src="${currentUser.image.png}">
+      <textarea class="user-comment-input user-reply-input" rows="4" cols="50" placeholder="Add a reply..."></textarea>
+      <button class="submit-btn" id="user-reply-submit">REPLY</button>
+    </form>
+  `
+
   commentsAndRepliesCount = 0
 
   commentData.forEach(comment => {
@@ -210,6 +336,8 @@ function displayComments() {
 
     const incrementActive = comment.isLiked ? 'active' : ''
     const decrementActive = comment.isDisliked ? 'active' : ''
+
+    const displayReplySection = !checkUser(comment) ? replySectionHtml : ''
   
     commentsAndRepliesCount++ 
 
@@ -237,7 +365,8 @@ function displayComments() {
           </button>
         </section>
         ${displayCommentBtns}
-      </article>    
+      </article>
+      ${displayReplySection}    
     `
 
     // each reply to a comment. 
@@ -250,8 +379,11 @@ function displayComments() {
         const incrementActiveReply = reply.isLiked ? 'active' : ''
         const decrementActiveReply = reply.isDisliked ? 'active' : '' 
 
+        const displayReplySection = !checkUser(reply) ? replySectionHtml : ''
+
         commentsAndRepliesCount++
 
+        // console.log(reply.replyingTo)
         commentsHtml += `
           <article class="comment nested-comment" data-comment=${reply.id}>
             <section class="comment-info">
@@ -278,7 +410,8 @@ function displayComments() {
               </button>
             </section>
             ${displayCommentBtnsReply}
-            </article>    
+            </article>
+            ${displayReplySection}    
         `
       })
     }
@@ -286,10 +419,10 @@ function displayComments() {
   
   // submit new comment. 
   commentsHtml += `
-  <form class="comment add-comment">
+  <form class="comment add-comment" id="add-comment">
     <img class="user-avatar" src="${currentUser.image.png}">
     <textarea class="user-comment-input" id="user-comment-input" rows="4" cols="50" placeholder="Add a comment..."></textarea>
-    <button class="user-comment-submit">SEND</button>
+    <button class="submit-btn" id="user-comment-submit">SEND</button>
   </form>
   `
 
@@ -308,8 +441,6 @@ render()
 /* To do 
   js: edit btn
 
-  js: reply btn 
-
   css: desktop design / rwd 
   css: the vertical line for replies + make reply box smaller. 
 */ 
@@ -320,13 +451,25 @@ targetTweetObj()
  also, i'm thinking maybe the above code can be made into a seperate function called getTargetCommentObj(). 
   I think the code might be jank and it might break/run super slower if you had a proper full scale app w/ millions of comments. but for now it gets the job done and I cba to figure the correct way to do it at this point in time because I have other things to prioritise in my learnings. 
 
-Decrement
-  need to fix bug where decrementing a score of 0 returns -1. need it to return 0 if already at 0. 
 
 handleDeleteComment()
   probably not the cleanest code, but it's working. took me multiple sessions lasting a few hours each to figure it out. 
   i had to change commentData from a const to a let. I feel like this is bad practice just from tuts i've watched but it was the only way (that I currently know of) to get it to work. and it makes sense if I think about it, ofc I need to change the data when deleting an item from it. 
 
 Delete Btn
-  need to actually delete it from local storage or data.json file. 
+  need to actually delete it from local storage or data.json file. But I won't do it this time around. 
+
+user-comment-input and user-reply-input
+  poor and overlapped naming. need a grp naming like user-text-input for css styling for both classes, then have the unique individual classes for js. 
+*/ 
+
+/* Bugs: 
+Reply Btn
+  after I've replied to any object 2nd or below in the list, it adds all future replies to that same list. 
+  reply btn adds all replies to maxblagun replies list. 
+
+replies left border
+  there is a gap between each border. cba to fix it because it would require me to rewrite the whole code and although it would add some learning, it puts me further away from what I'm currently focused on learning. 
+
+need to clean up / refactor js code 
 */ 
