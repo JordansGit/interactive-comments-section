@@ -17,7 +17,6 @@ let commentsAndRepliesCount = 0
 
 // Event Listeners 
 document.addEventListener('click', function(e) {
-  // console.log(e.target.id === 'user-comment-submit')
   if (e.target.dataset.plus) {
     handleIncrement(e.target.dataset.plus)
   } else if (e.target.dataset.minus) {
@@ -30,6 +29,10 @@ document.addEventListener('click', function(e) {
     handleOpenReplyEl(e.target)
   } else if (e.target.id === 'user-reply-submit') {
     handleSubmitReply(e)
+  } else if (e.target.classList.contains('comment-edit-btn')) {
+    handleEditCommentBtn(e)
+  } else if (e.target.classList.contains('comment-update-btn')) {
+    handleSubmitUpdate(e)
   }
 })
 
@@ -134,7 +137,6 @@ function handleCloseModal() {
 }
 
 function handleDeleteComment(targetCommentObj) {
-  // console.log(targetCommentObj)
   let arr = [...commentData]
   // commentData.pop() // this removes the last comment and all it's replies. we only want to remove the specific comment or reply. 
 
@@ -182,8 +184,6 @@ function handleSubmitCommentBtn(e) {
         "replies": []
       }
     )
-    console.log(commentData[commentData.length-1])
-    console.log(commentData)
     render()
   }
 }
@@ -194,8 +194,6 @@ let replyUsername = ''
 function handleOpenReplyEl(replyBtn) {
   const targetTweetEl = replyBtn.parentElement
 
-  console.log(commentData)
-  console.log(targetTweetEl)
   // get target comment object 
   let targetCommentObj = {}
   let commentId = Number(targetTweetEl.dataset.comment)
@@ -262,7 +260,6 @@ function handleSubmitReply(e) {
         },
       }
     )
-    console.log(commentData)
     render()  
   }
 
@@ -280,14 +277,62 @@ function handleSubmitReply(e) {
   */ 
 }
 
-// reply function 
-/*
-  when reply btn clicked,       ******* done 
-    open reply div              ***** done 
-  when submitReply btn clicked
-    add reply to commentData 
-*/ 
+let editCommentIsActive = false
 
+function handleEditCommentBtn(e) {
+  const targetCommentEl = e.target.parentElement.parentElement
+  const commentTextArea = targetCommentEl.querySelector('.comment-edit-input')
+  const commentDescription = targetCommentEl.querySelector('.comment-description')
+  const editAndDeleteBtns = targetCommentEl.querySelector('.comment-btns')
+  const updateBtnEl = targetCommentEl.querySelector('.comment-update-btn')
+
+  let targetCommentObj = {}
+  let commentId = Number(targetCommentEl.dataset.comment)
+
+  // get target comment obj 
+  targetCommentObj = commentData.filter(comment => comment.id === commentId)[0]
+  if (targetCommentObj === undefined) {
+    commentData.forEach(comment => {
+      comment.replies.forEach(reply => {
+        if (reply.id === commentId) {
+          targetCommentObj = reply
+        }
+      })
+    })
+  }
+  
+  editCommentIsActive = true
+  commentTextArea.value = commentDescription.innerText
+  commentDescription.classList.add('hide')
+  commentTextArea.classList.remove('hide')
+
+  editAndDeleteBtns.classList.add('hide')
+  updateBtnEl.classList.remove('hide')
+}
+
+function handleSubmitUpdate(e) {
+  e.preventDefault()
+  const targetCommentEl = e.target.parentElement
+  const commentTextArea = targetCommentEl.querySelector('.comment-edit-input')
+
+  let targetCommentObj = {}
+  let commentId = Number(targetCommentEl.dataset.comment)
+
+  // get target comment obj 
+  targetCommentObj = commentData.filter(comment => comment.id === commentId)[0]
+  if (targetCommentObj === undefined) {
+    commentData.forEach(comment => {
+      comment.replies.forEach(reply => {
+        if (reply.id === commentId) {
+          targetCommentObj = reply
+        }
+      })
+    })
+  }
+
+  targetCommentObj.content = commentTextArea.value
+  render()
+}
 
 function checkUser(comment) {
   return currentUser.username === comment.user.username
@@ -313,7 +358,12 @@ function displayComments() {
         <img class="edit-icon" src="./images/icon-edit.svg">
         Edit
       </button>
-    </div> 
+    </div>
+    <button class="comment-update-btn hide">Update</button> 
+  `
+
+  let updateCommentButtonHtml = `
+    <button class="comment-update-btn hide">Update</button>
   `
 
   let highlightUserDiv = `
@@ -328,16 +378,27 @@ function displayComments() {
     </form>
   `
 
+  let editCommentTextAreaHtml = `
+    <textarea class="comment-edit-input hide" rows="8" cols="50"></textarea>
+  `
+
   commentsAndRepliesCount = 0
 
   commentData.forEach(comment => {
     const displayCommentBtns = checkUser(comment) ? editAndDeleteButtonsHtml : replyButtonHtml
+
+    // const displayCommentBtns = !checkUser(comment) ? replyButtonHtml 
+    // : editCommentIsActive ? updateCommentButtonHtml
+    // : editAndDeleteButtonsHtml 
+
     const displayHighlightUserDiv = checkUser(comment) ? highlightUserDiv : ''
 
     const incrementActive = comment.isLiked ? 'active' : ''
     const decrementActive = comment.isDisliked ? 'active' : ''
 
     const displayReplySection = !checkUser(comment) ? replySectionHtml : ''
+
+    const displayEditCommentTextArea = checkUser(comment) ? editCommentTextAreaHtml : ''
   
     commentsAndRepliesCount++ 
 
@@ -351,6 +412,7 @@ function displayComments() {
           <p class="comment-date">${comment.createdAt}</p>  
         </section>
         <p class="comment-description">${comment.content}</p>
+        ${displayEditCommentTextArea} 
         <section class="comment-score">
           <button class="plus ${incrementActive}" data-plus=${comment.id}>
             <svg class="plus-icon" width="11" height="11" xmlns="http://www.w3.org/2000/svg">
@@ -374,6 +436,10 @@ function displayComments() {
       comment.replies.forEach(reply => {
 
         const displayCommentBtnsReply = checkUser(reply) ? editAndDeleteButtonsHtml : replyButtonHtml
+        // const displayCommentBtnsReply = !checkUser(reply) ? replyButtonHtml 
+        // : editCommentIsActive ? updateCommentButtonHtml
+        // : editAndDeleteButtonsHtml 
+    
         const displayHighlightUserDivReply = checkUser(reply) ? highlightUserDiv : ''
 
         const incrementActiveReply = reply.isLiked ? 'active' : ''
@@ -381,9 +447,10 @@ function displayComments() {
 
         const displayReplySection = !checkUser(reply) ? replySectionHtml : ''
 
+        const displayEditCommentTextAreaReply = checkUser(reply) ? editCommentTextAreaHtml : ''
+
         commentsAndRepliesCount++
 
-        // console.log(reply.replyingTo)
         commentsHtml += `
           <article class="comment nested-comment" data-comment=${reply.id}>
             <section class="comment-info">
@@ -396,6 +463,7 @@ function displayComments() {
               <span class="reply-handle">@${reply.replyingTo}</span> <!-- change this!!!! --> 
               ${reply.content}
             </p>
+            ${displayEditCommentTextAreaReply} 
             <section class="comment-score">
               <button class="plus ${incrementActiveReply}" data-plus=${reply.id}>
                 <svg class="plus-icon" width="11" height="11" xmlns="http://www.w3.org/2000/svg">
@@ -470,6 +538,9 @@ Reply Btn
 
 replies left border
   there is a gap between each border. cba to fix it because it would require me to rewrite the whole code and although it would add some learning, it puts me further away from what I'm currently focused on learning. 
+
+increment/decrement 
+  once i've added a new comment (not reply, just a comment), increment/decrement on replies stop working, returning obj undefined. 
 
 need to clean up / refactor js code 
 */ 

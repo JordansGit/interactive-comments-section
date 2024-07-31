@@ -116,7 +116,8 @@ body {
 
 /* Comment section */ 
 
-.comment, .comment-score, .user-comment-input, .submit-btn {
+.comment, .comment-score, .user-comment-input, .submit-btn, 
+.comment-edit-input, .comment-update-btn {
   border-radius: 8px;
 }
 
@@ -126,7 +127,7 @@ body {
   justify-content: center;
   align-items: center;
   /* width: 100vw; */
-  margin-top: 2em;
+  margin: 2em 0;
   /* width: max-content; */
   gap: 1em;
 }
@@ -183,8 +184,12 @@ body {
   width: 32px;
 }
 
-.comment-description {
+
+.comment-description, .comment-edit-input {
   grid-area: commentDescription;
+}
+
+.comment-description {
   margin: 1em 0;
 }
 
@@ -222,12 +227,22 @@ body {
   gap: 1em;
 }
 
-.user-comment-input {
-  grid-area: textarea;
+
+.comment-edit-input, .user-comment-input {
   padding: 0.75em 1.5em;
   font-size: 1rem;
   border-color: var(--light-gray);
   color: var(--dark-blue)
+}
+
+
+.comment-edit-input {
+  margin: 1em 0;
+  height: auto;
+}
+
+.user-comment-input {
+  grid-area: textarea;
 }
 
 .user-comment-input::placeholder {
@@ -252,6 +267,15 @@ body {
   width: max-content;
   padding: 1em 2em;
   justify-self: end;
+}
+
+.comment-update-btn {
+  background: var(--moderate-blue);
+  color: var(--white);
+  width: max-content;
+  padding: 1em 2em;
+  justify-self: end;
+  text-transform: uppercase;
 }
 
 .comment-highlight-user {
